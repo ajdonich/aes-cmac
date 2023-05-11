@@ -7,9 +7,10 @@ const unsigned char const_Rb[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0x87};
 const unsigned int const_Bsize = 16;
 
 // Implementation
-AesCmac::AesCmac(const unsigned char *key) : K(key), bufferlen(128), msglen(0) {
+AesCmac::AesCmac(unsigned char key[16]) : bufferlen(128), msglen(0) {
+    memcpy(K, key, 16);
+    aes128Cipher.setKey(K, 16);
     msg = new unsigned char[bufferlen](); // Gets zeroed-out on ctor
-    aes128Cipher.setKey(key, 16);
 }
 
 AesCmac::~AesCmac() {
@@ -17,28 +18,30 @@ AesCmac::~AesCmac() {
 }
 
 void AesCmac::append(const unsigned char *data, size_t datalen) {
-    if (datalen == 0) return; 
-    if (msglen + datalen > bufferlen) {            
-        size_t nxtblen = ceil((msglen + datalen) / 128.0) * 128;
-        unsigned char *buffer = new unsigned char[nxtblen]();
-        memcpy(buffer, msg, msglen);
+    if (datalen > 0) {
+        if (msglen + datalen > bufferlen) {            
+            size_t nxtblen = ceil((msglen + datalen) / 128.0) * 128;
+            unsigned char *buffer = new unsigned char[nxtblen]();
+            memcpy(buffer, msg, msglen);
 
-        delete [] msg;
-        bufferlen = nxtblen;
-        msg = buffer;
+            delete [] msg;
+            bufferlen = nxtblen;
+            msg = buffer;
+        }
+        
+        memcpy((void*)&msg[msglen], data, datalen);
+        msglen += datalen;
     }
-    
-    memcpy((void*)&msg[msglen], data, datalen);
-    msglen += datalen;
 }
 
 void AesCmac::reset() {
-    memset(msg, 0, bufferlen);
-    msglen = 0;
+    delete [] msg;
+    bufferlen = 128, msglen = 0;
+    msg = new unsigned char[bufferlen]();
 }
 
-// Pass aes128Cipher initialized with key K. Pass K1, K2 arrays each of len 16 bytes
-void AesCmac::_generateSubkey(unsigned char *K1, unsigned char *K2) {
+// Pass K1, K2 arrays each of len 16 bytes
+void AesCmac::_generateSubkey(unsigned char K1[16], unsigned char K2[16]) {
     unsigned char L[16] = {0};
     aes128Cipher.encryptBlock(L, const_Zero);
     unsigned char rhtmsb[16] = {0}; // MSB from byte to the right
@@ -53,7 +56,7 @@ void AesCmac::_generateSubkey(unsigned char *K1, unsigned char *K2) {
 }
 
 // Pass CMAC array of len 16 bytes
-void AesCmac::finalize(unsigned char *CMAC) {
+void AesCmac::finalize(unsigned char CMAC[16]) {
     int bidx = 0;
     unsigned char X[16] = {0};
     unsigned char Y[16] = {0};

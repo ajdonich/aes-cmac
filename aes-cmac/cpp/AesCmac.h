@@ -4,15 +4,15 @@
 class AesCmac 
 {
 public:
-    // Init with 16-byte/128-bit hash key
-    AesCmac(const unsigned char *key);
+    // Init with 16-byte/AES128 hash key
+    AesCmac(unsigned char key[16]);
     ~AesCmac();
 
     // Appends data to the internal message buffer for hash
     void append(const unsigned char *data, size_t datalen);
  
     // Hash internal message buffer and put result in CMAC array
-    void finalize(unsigned char *CMAC); 
+    void finalize(unsigned char CMAC[16]); 
 
     // Reset/clear message buffer
     void reset(); 
@@ -21,11 +21,11 @@ public:
     unsigned char _MSB(unsigned char *barray);
     void _XOR(unsigned char *result, const unsigned char *lhs, const unsigned char *rhs, size_t len=16);
     void _XOR_eq(unsigned char *result, const unsigned char *rhs, size_t len=16);
-    void _generateSubkey(unsigned char *K1, unsigned char *K2);
+    void _generateSubkey(unsigned char K1[16], unsigned char K2[16]);
 
 private:
     AES128 aes128Cipher;
-    const unsigned char *K;
+    unsigned char K[16];
     unsigned char *msg;
     size_t bufferlen;
     size_t msglen;

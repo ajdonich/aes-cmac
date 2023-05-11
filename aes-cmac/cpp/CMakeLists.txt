@@ -11,17 +11,28 @@ project(aes-mac LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Install with relative RPATHs 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    set(CMAKE_INSTALL_RPATH "@loader_path/lib") # MacOS
+else()
+    set(CMAKE_INSTALL_RPATH "\$ORIGIN/lib") # Linux/Unix
+endif()
+
 # Fetch external deps
 include(FetchContent)
 FetchContent_Declare(arduinolibs 
     GIT_REPOSITORY https://github.com/rweather/arduinolibs.git
     GIT_TAG        1e13ef7b244caaa1b9151d5e41c4cdb029f4ea84 # latest commit as of 05/10/2023
 )
+FetchContent_Declare(pybind11
+    GIT_REPOSITORY https://github.com/pybind/pybind11
+    GIT_TAG        v2.10.4
+)
 FetchContent_Declare(googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
     GIT_TAG        v1.13.0
 )
-FetchContent_MakeAvailable(arduinolibs googletest)
+FetchContent_MakeAvailable(arduinolibs pybind11 googletest)
 
 # =====
 # Build
@@ -98,12 +109,15 @@ target_include_directories(AesCmac_test PUBLIC ".")
 include(GoogleTest)
 gtest_discover_tests(AesCmac_test)
 
-# Build fittransformer_so cpython module
-# pybind11_add_module(fittransformer_so fittransformer.cc fittransformer_so.cc)
-# target_compile_definitions(fittransformer_so PRIVATE -DPYBIND11_PRINT_PYSTDOUT)
-# target_link_libraries(fittransformer_so PRIVATE arrow_shared parquet_shared
-#     Boost::filesystem pybind11::module pybind11::lto fitsdk)
+# Build pyaescmac cpython module
+pybind11_add_module(pyaescmac PyAesCmac_so.cpp)
+target_link_libraries(pyaescmac PRIVATE pybind11::module pybind11::lto arduinocrypto)
 
 # =======
 # Install
 # =======
+
+# Install py/lib/bin/so files. Expects: CMAKE_INSTALL_PREFIX="../../cmake-install")
+install(FILES "../PyAesCmac.py" DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS pyaescmac DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS arduinocrypto LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
