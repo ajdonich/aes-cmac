@@ -39,7 +39,7 @@ FetchContent_MakeAvailable(arduinolibs pybind11 googletest)
 # =====
 
 # Build arduinocrypto library
-set(ARDUINO_SRC "../../cmake-build/_deps/arduinolibs-src")
+set(ARDUINO_SRC "../cmake-build/_deps/arduinolibs-src")
 set(CRYTPO_CPP
     "${ARDUINO_SRC}/libraries/CryptoLW/src/Acorn128.cpp"
     "${ARDUINO_SRC}/libraries/Crypto/AES128.cpp"
@@ -102,7 +102,7 @@ target_include_directories(arduinocrypto PUBLIC
 
 # Build AesCmac_test google test executable
 enable_testing()
-add_executable(AesCmac_test "../../test/AesCmac_test.cpp")
+add_executable(AesCmac_test "../test/AesCmac_test.cpp")
 target_link_libraries(AesCmac_test PRIVATE arduinocrypto GTest::gtest_main)
 target_include_directories(AesCmac_test PUBLIC ".")
 
@@ -117,7 +117,7 @@ target_link_libraries(pyaescmac PRIVATE pybind11::module pybind11::lto arduinocr
 # Install
 # =======
 
-# Install py/lib/bin/so files. Expects: CMAKE_INSTALL_PREFIX="../../cmake-install")
-install(FILES "../PyAesCmac.py" DESTINATION ${CMAKE_INSTALL_PREFIX})
+# Install py/lib/bin/so files. Expects CMAKE_INSTALL_PREFIX is ../cmake-install
+install(FILES "../test/PyAesCmac_test.py" DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(TARGETS pyaescmac DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(TARGETS arduinocrypto LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

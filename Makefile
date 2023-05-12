@@ -3,7 +3,7 @@
 all: build test install
 
 build:
-	cmake -Saes-cmac/cpp -Bcmake-build -DCMAKE_INSTALL_PREFIX=cmake-install
+	cmake -Saes-cmac -Bcmake-build -DCMAKE_INSTALL_PREFIX=cmake-install
 	cmake --build cmake-build 
 
 test:
@@ -11,7 +11,7 @@ test:
 
 install:
 	cmake --install cmake-build
-	python cmake-install/PyAesCmac.py
+	python cmake-install/PyAesCmac_test.py
 
 clean:
 	rm -rf cmake-build/ cmake-install/
