@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.15...3.27)
 
 # =========
 # Configure
@@ -18,19 +18,22 @@ else()
     set(CMAKE_INSTALL_RPATH "\$ORIGIN/lib") # Linux/Unix
 endif()
 
+# Instruct pybind11 to use FindPython instead of deprecated FindPythonInterp
+set(PYBIND11_FINDPYTHON True)
+
 # Fetch external deps
 include(FetchContent)
 FetchContent_Declare(arduinolibs 
     GIT_REPOSITORY https://github.com/rweather/arduinolibs.git
-    GIT_TAG        1e13ef7b244caaa1b9151d5e41c4cdb029f4ea84 # latest commit as of 05/10/2023
+    GIT_TAG        1e13ef7b244caaa1b9151d5e41c4cdb029f4ea84 # latest commit as of 11/27/2023
 )
 FetchContent_Declare(pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11
-    GIT_TAG        v2.10.4
+    GIT_TAG        v2.11.1
 )
 FetchContent_Declare(googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG        v1.13.0
+    GIT_TAG        v1.14.0
 )
 FetchContent_MakeAvailable(arduinolibs pybind11 googletest)
 
