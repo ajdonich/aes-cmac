@@ -12,13 +12,15 @@ C++ Example:
 #include "AesCmac.h"
 
 std::string toString(unsigned char *buf, size_t len=16) {
-    char cstr[len*2 + ((int)len/4) + 1];
+    size_t maxbytes = len*2 + ((int)len/4) + 1;
+    char cstr[maxbytes];
+    
     for(int i = 0, j = 0; i < len; i++) {
         if (i > 0 && (i%4) == 0) { 
-            std::sprintf(&cstr[j], "%s", " ");
+            std::snprintf(&cstr[j], maxbytes, "%s", " ");
             j += 1;
         }
-        std::sprintf(&cstr[j], "%02x", buf[i]);
+        std::snprintf(&cstr[j], maxbytes, "%02x", buf[i]);
         j += 2;
     }
     return std::string(cstr);
